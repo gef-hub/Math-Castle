@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Build the Castle! · Primary 1 Maths</title>
+<style>
+  :root{
+    --sky-top:#4FA8D8;
+    --sky-bottom:#CFEFFA;
+    --grass:#6FAF4A;
+    --grass-dark:#4F8735;
+    --stone:#EBDFC7;
+    --stone-shadow:#C7B996;
+    --roof-a:#7B4B94;
+    --roof-b:#5C6BC0;
+    --gate:#4A3324;
+    --brick:#B5451B;
+    --brick-dark:#8C3313;
+    --gold:#F2B705;
+    --ink:#3B2A20;
+    --panel:#FFF8E9;
+    --panel-edge:#E4D3A6;
+    --wrong:#D0483A;
+    --right:#4F8735;
+    --font: 'Baloo 2','Segoe UI Rounded','Trebuchet MS',sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    font-family:var(--font);
+    color:var(--ink);
+    overflow:hidden;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    background:linear-gradient(#dff3fb,#dff3fb);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 20px;
+    background:#3B6FA0;
+    color:#fff;
+    box-shadow:0 3px 0 rgba(0,0,0,0.15);
+    z-index:5;
+  }
+  .topbar h1{
+    margin:0;
+    font-size:clamp(18px,3vw,26px);
+    font-weight:700;
+    letter-spacing:.3px;
+  }
+  .score-badge{
+    position:relative;
+    background:var(--gold);
+    color:var(--ink);
+    font-weight:700;
+    font-size:clamp(16px,2.6vw,22px);
+    padding:8px 22px;
+    clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);
+    min-width:110px;
+    text-align:center;
+    transition:transform .2s ease;
+  }
+  .score-badge.bump{ transform:scale(1.18); }
+  .mute-btn{
+    background:rgba(255,255,255,0.18);
+    border:none;
+    color:#fff;
+    width:38px; height:38px;
+    border-radius:50%;
+    font-size:18px;
+    cursor:pointer;
+    margin-left:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mute-btn:hover{ background:rgba(255,255,255,0.3); }
+  .topbar-right{ display:flex; align-items:center; }
+
+  /* ---------- Stage ---------- */
+  .stage-wrap{
+    position:relative;
+    flex:1 1 auto;
+    min-height:0;
+    background:linear-gradient(var(--sky-top),var(--sky-bottom) 75%);
+    overflow:hidden;
+  }
+  .cloud{
+    position:absolute;
+    background:#fff;
+    border-radius:50px;
+    opacity:.85;
+  }
+  #stage{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  .encourage{
+    position:absolute;
+    top:14px; left:50%;
+    transform:translateX(-50%);
+    font-weight:700;
+    font-size:clamp(14px,2.4vw,20px);
+    color:#fff;
+    text-shadow:0 2px 3px rgba(0,0,0,0.25);
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .encourage.show{ opacity:1; }
+
+  /* ---------- Flying brick / floating text ---------- */
+  .flying-brick{
+    position:fixed;
+    width:26px; height:17px;
+    background:var(--brick);
+    border:2px solid var(--brick-dark);
+    border-radius:3px;
+    z-index:50;
+    pointer-events:none;
+    will-change:transform,opacity;
+  }
+  .float-text{
+    position:fixed;
+    font-weight:800;
+    font-size:26px;
+    z-index:60;
+    pointer-events:none;
+    will-change:transform,opacity;
+  }
+  .float-text.plus{ color:var(--right); }
+  .float-text.minus{ color:var(--wrong); }
+
+  /* ---------- Question panel ---------- */
+  .panel{
+    flex:0 0 auto;
+    background:var(--panel);
+    border-top:6px solid var(--panel-edge);
+    padding:14px 18px 18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    z-index:5;
+  }
+  .equation{
+    font-size:clamp(30px,6vw,46px);
+    font-weight:800;
+    letter-spacing:1px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:1.2em;
+  }
+  .equation .num{ color:var(--ink); }
+  .equation .op{ color:var(--brick); }
+  .equation .qmark{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:1.4em;
+    color:#fff;
+    background:#3B6FA0;
+    border-radius:12px;
+    padding:0 10px;
+  }
+  .answer-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  #answerInput{
+    width:120px;
+    font-size:26px;
+    font-weight:700;
+    text-align:center;
+    padding:10px 6px;
+    border-radius:12px;
+    border:3px solid var(--stone-shadow);
+    font-family:var(--font);
+    color:var(--ink);
+    background:#fff;
+  }
+  #answerInput:focus{ outline:none; border-color:#3B6FA0; }
+  #answerInput.shake{ animation:shake .4s; border-color:var(--wrong); }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px); }
+    40%{ transform:translateX(8px); }
+    60%{ transform:translateX(-6px); }
+    80%{ transform:translateX(6px); }
+  }
+  .check-btn{
+    font-family:var(--font);
+    font-size:22px;
+    font-weight:800;
+    color:#fff;
+    background:var(--right);
+    border:none;
+    border-bottom:4px solid #375d27;
+    padding:10px 26px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .check-btn:active{ transform:translateY(2px); border-bottom-width:2px; }
+  .check-btn:disabled{ opacity:.5; cursor:default; }
+
+  .keypad{
+    display:grid;
+    grid-template-columns:repeat(3,56px);
+    gap:8px;
+  }
+  .keypad button{
+    font-family:var(--font);
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+    background:var(--stone);
+    border:none;
+    border-bottom:4px solid var(--stone-shadow);
+    border-radius:12px;
+    height:44px;
+    cursor:pointer;
+  }
+  .keypad button:active{ transform:translateY(2px); border-bottom-width:2px; }
+  .keypad button.wide{ grid-column:span 1; }
+  .keypad button.clear{ background:#f3d0c9; border-bottom-color:#cf9284; }
+  .keypad button.back{ background:#f3e7c9; border-bottom-color:#cfb884; }
+
+  .hint{
+    font-size:13px;
+    color:#7a6a56;
+  }
+
+  /* ---------- Win overlay ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(20,30,20,0.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+    opacity:0; pointer-events:none;
+    transition:opacity .4s ease;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+  .win-card{
+    background:var(--panel);
+    border-radius:22px;
+    padding:36px 40px;
+    text-align:center;
+    box-shadow:0 12px 0 rgba(0,0,0,0.2);
+    max-width:90vw;
+  }
+  .win-card h2{
+    margin:0 0 8px;
+    font-size:clamp(26px,5vw,38px);
+    color:var(--brick);
+  }
+  .win-card p{
+    margin:0 0 18px;
+    font-size:18px;
+  }
+  .restart-btn{
+    font-family:var(--font);
+    font-size:20px;
+    font-weight:800;
+    color:#fff;
+    background:#3B6FA0;
+    border:none;
+    border-bottom:4px solid #274a6e;
+    padding:12px 28px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .restart-btn:active{ transform:translateY(2px); border-bottom-width:2px; }
+
+  .confetti{
+    position:fixed;
+    top:-20px;
+    width:10px; height:16px;
+    z-index:110;
+    pointer-events:none;
+  }
+
+  @media (max-width:480px){
+    .keypad{ grid-template-columns:repeat(3,48px); }
+    .keypad button{ height:40px; font-size:19px; }
+    #answerInput{ width:96px; font-size:22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <h1>🏰 Build the Castle!</h1>
+    <div class="topbar-right">
+      <div class="score-badge" id="scoreBadge">0 / 50</div>
+      <button class="mute-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+    </div>
+  </div>
+
+  <div class="stage-wrap" id="stageWrap">
+    <div class="encourage" id="encourage"></div>
+    <svg id="stage" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="stoneGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#F3E9D2"/>
+          <stop offset="100%" stop-color="#D8C79E"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ground -->
+      <rect x="0" y="255" width="400" height="45" fill="var(--grass)"/>
+      <path d="M0,255 Q50,248 100,255 T200,255 T300,255 T400,255 L400,260 L0,260 Z" fill="var(--grass-dark)" opacity="0.5"/>
+
+      <!-- ===== CASTLE (revealed by clip) ===== -->
+      <g id="castleFill" clip-path="url(#buildClip)">
+        <!-- connecting walls -->
+        <rect x="108" y="185" width="62" height="75" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
+        <rect x="230" y="185" width="62" height="75" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
+
+        <!-- left tower -->
+        <rect x="55" y="115" width="55" height="145" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
+        <polygon points="52,115 82.5,72 113,115" fill="var(--roof-b)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
+        <rect x="75" y="150" width="16" height="22" rx="2" fill="var(--gate)"/>
+
+        <!-- right tower -->
+        <rect x="290" y="115" width="55" height="145" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
+        <polygon points="287,115 317.5,72 348,115" fill="var(--roof-b)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
+        <rect x="309" y="150" width="16" height="22" rx="2" fill="var(--gate)"/>
+
+        <!-- center keep -->
+        <rect x="165" y="70" width="70" height="190" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
+        <polygon points="161,70 200,20 239,70" fill="var(--roof-a)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
+        <!-- gate arch -->
+        <path d="M182,260 L182,225 A18,18 0 0 1 218,225 L218,260 Z" fill="var(--gate)"/>
+        <!-- windows -->
+        <rect x="188" y="150" width="10" height="16" rx="4" fill="var(--gate)"/>
+        <rect x="202" y="150" width="10" height="16" rx="4" fill="var(--gate)"/>
+
+        <!-- flag (only fully visible when castle is complete) -->
+        <g id="flagGroup" opacity="0">
+          <line x1="200" y1="20" x2="200" y2="0" stroke="#5a4632" stroke-width="2"/>
+          <polygon id="flagCloth" points="200,0 216,4 200,9" fill="var(--gold)"/>
+        </g>
+      </g>
+
+      <clipPath id="buildClip">
+        <rect id="buildClipRect" x="0" y="260" width="400" height="0"/>
+      </clipPath>
+
+      <!-- foreground grass tufts -->
+      <path d="M0,270 q6,-10 12,0 q6,-10 12,0 q6,-10 12,0" transform="translate(20,10)" stroke="var(--grass-dark)" stroke-width="2" fill="none"/>
+      <path d="M0,270 q6,-10 12,0 q6,-10 12,0 q6,-10 12,0" transform="translate(330,8)" stroke="var(--grass-dark)" stroke-width="2" fill="none"/>
+    </svg>
+  </div>
+
+  <div class="panel">
+    <div class="equation" id="equation">
+      <span class="num" id="numA">?</span>
+      <span class="op" id="opSpan">+</span>
+      <span class="num" id="numB">?</span>
+      <span class="num">=</span>
+      <span class="qmark">?</span>
+    </div>
+    <div class="answer-row">
+      <input id="answerInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-label="Your answer">
+      <button class="check-btn" id="checkBtn">Check</button>
+    </div>
+    <div class="keypad" id="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="clear" data-k="clear">C</button><button data-k="0">0</button><button class="back" data-k="back">⌫</button>
+    </div>
+    <div class="hint">Type your answer or tap the number pad, then press Check.</div>
+  </div>
+
+  <div class="overlay" id="winOverlay">
+    <div class="win-card">
+      <h2>🏰 Castle Complete!</h2>
+      <p>You solved 50 sums and built the whole castle. Well done, builder!</p>
+      <button class="restart-btn" id="restartBtn">Build a New Castle</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var TOTAL = 50;
+  var score = 0;
+  var locked = false;
+  var muted = false;
+  var current = { a:0, b:0, op:'+', answer:0 };
+
+  var scoreBadge = document.getElementById('scoreBadge');
+  var numA = document.getElementById('numA');
+  var numB = document.getElementById('numB');
+  var opSpan = document.getElementById('opSpan');
+  var answerInput = document.getElementById('answerInput');
+  var checkBtn = document.getElementById('checkBtn');
+  var keypad = document.getElementById('keypad');
+  var stageWrap = document.getElementById('stageWrap');
+  var buildClipRect = document.getElementById('buildClipRect');
+  var flagGroup = document.getElementById('flagGroup');
+  var winOverlay = document.getElementById('winOverlay');
+  var restartBtn = document.getElementById('restartBtn');
+  var muteBtn = document.getElementById('muteBtn');
+  var encourage = document.getElementById('encourage');
+
+  var CASTLE_TOP = 20;    // y of flag tip
+  var CASTLE_BASE = 260;  // y of ground
+  var CASTLE_SPAN = CASTLE_BASE - CASTLE_TOP;
+
+  /* ---------------- Sound (WebAudio, no external files) ---------------- */
+  var audioCtx = null;
+  function beep(freq, duration, type){
+    if(muted) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }catch(e){ /* ignore audio errors */ }
+  }
+  function playCorrect(){ beep(523,0.12,'triangle'); setTimeout(function(){beep(784,0.16,'triangle');},110); }
+  function playWrong(){ beep(180,0.28,'sawtooth'); }
+  function playWin(){ [523,659,784,1046].forEach(function(f,i){ setTimeout(function(){beep(f,0.2,'triangle');}, i*140); }); }
+
+  muteBtn.addEventListener('click', function(){
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+  });
+
+  /* ---------------- Question generation ---------------- */
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function generateQuestion(){
+    var op = Math.random() < 0.5 ? '+' : '-';
+    var a,b,answer;
+    if(op === '+'){
+      a = randInt(0,20);
+      b = randInt(0,20-a);
+      answer = a+b;
+    } else {
+      a = randInt(0,20);
+      b = randInt(0,a);
+      answer = a-b;
+    }
+    current = { a:a, b:b, op:op, answer:answer };
+    numA.textContent = a;
+    numB.textContent = b;
+    opSpan.textContent = op;
+    answerInput.value = '';
+    answerInput.disabled = false;
+    checkBtn.disabled = false;
+    answerInput.focus();
+  }
+
+  /* ---------------- Castle rendering ---------------- */
+  function updateCastle(animate){
+    var pct = score / TOTAL;
+    var h = pct * CASTLE_SPAN;
+    var y = CASTLE_BASE - h;
+    buildClipRect.setAttribute('y', y);
+    buildClipRect.setAttribute('height', h + 5);
+    flagGroup.setAttribute('opacity', score >= TOTAL ? 1 : 0);
+  }
+
+  function bumpScoreBadge(){
+    scoreBadge.classList.add('bump');
+    setTimeout(function(){ scoreBadge.classList.remove('bump'); }, 220);
+  }
+
+  function setScoreText(){
+    scoreBadge.textContent = score + ' / ' + TOTAL;
+  }
+
+  function showEncourage(msg, ok){
+    encourage.textContent = msg;
+    encourage.style.color = ok ? '#fff' : '#ffe2df';
+    encourage.classList.add('show');
+    setTimeout(function(){ encourage.classList.remove('show'); }, 900);
+  }
+
+  var GOOD_MSGS = ['Great job!','Nice work!','Brick by brick!','You got it!','Keep building!'];
+  var OOPS_MSGS = ['Oops, try again!','Not quite!','A brick fell!','So close!'];
+
+  /* ---------------- Flying brick animations ---------------- */
+  function getStageEdgePoint(){
+    var rect = stageWrap.getBoundingClientRect();
+    var pct = score / TOTAL;
+    var y = rect.bottom - pct * rect.height * 0.78 - rect.height*0.05;
+    var x = rect.left + rect.width/2 + randInt(-40,40);
+    return { x:x, y:y };
+  }
+
+  function flyBrickToCastle(onDone){
+    var startRect = checkBtn.getBoundingClientRect();
+    var start = { x:startRect.left+startRect.width/2, y:startRect.top };
+    var end = getStageEdgePoint();
+
+    var brick = document.createElement('div');
+    brick.className = 'flying-brick';
+    document.body.appendChild(brick);
+
+    var dx = end.x - start.x, dy = end.y - start.y;
+    var anim = brick.animate([
+      { transform:'translate('+start.x+'px,'+start.y+'px) rotate(0deg) scale(1)', opacity:1 },
+      { transform:'translate('+(start.x+dx*0.5)+'px,'+(start.y+dy*0.5-70)+'px) rotate(180deg) scale(1.1)', opacity:1, offset:0.6 },
+      { transform:'translate('+end.x+'px,'+end.y+'px) rotate(320deg) scale(0.9)', opacity:0.2 }
+    ], { duration:650, easing:'ease-in' });
+
+    var plus = document.createElement('div');
+    plus.className = 'float-text plus';
+    plus.textContent = '+1';
+    plus.style.left = (start.x-10)+'px';
+    plus.style.top = (start.y-30)+'px';
+    document.body.appendChild(plus);
+    plus.animate([
+      { transform:'translateY(0px)', opacity:1 },
+      { transform:'translateY(-40px)', opacity:0 }
+    ], { duration:700, easing:'ease-out' });
+    setTimeout(function(){ plus.remove(); },700);
+
+    anim.onfinish = function(){
+      brick.remove();
+      if(onDone) onDone();
+    };
+  }
+
+  function dropBrickFromCastle(onDone){
+    var start = getStageEdgePoint();
+    var stageRect = stageWrap.getBoundingClientRect();
+    var end = { x:start.x + randInt(-60,60), y: stageRect.bottom + 40 };
+
+    var brick = document.createElement('div');
+    brick.className = 'flying-brick';
+    document.body.appendChild(brick);
+
+    var anim = brick.animate([
+      { transform:'translate('+start.x+'px,'+start.y+'px) rotate(0deg)', opacity:1 },
+      { transform:'translate('+end.x+'px,'+end.y+'px) rotate(400deg)', opacity:0.3 }
+    ], { duration:650, easing:'cubic-bezier(.5,0,1,.5)' });
+
+    var minus = document.createElement('div');
+    minus.className = 'float-text minus';
+    minus.textContent = '-1';
+    minus.style.left = (start.x-10)+'px';
+    minus.style.top = (start.y-30)+'px';
+    document.body.appendChild(minus);
+    minus.animate([
+      { transform:'translateY(0px)', opacity:1 },
+      { transform:'translateY(-30px)', opacity:0 }
+    ], { duration:700, easing:'ease-out' });
+    setTimeout(function(){ minus.remove(); },700);
+
+    anim.onfinish = function(){
+      brick.remove();
+      if(onDone) onDone();
+    };
+  }
+
+  /* ---------------- Confetti (win) ---------------- */
+  var CONFETTI_COLORS = ['#F2B705','#B5451B','#4F8735','#5C6BC0','#7B4B94','#3B6FA0'];
+  function burstConfetti(){
+    for(var i=0;i<40;i++){
+      (function(){
+        var el = document.createElement('div');
+        el.className = 'confetti';
+        el.style.left = randInt(0,100)+'vw';
+        el.style.background = CONFETTI_COLORS[randInt(0,CONFETTI_COLORS.length-1)];
+        el.style.transform = 'rotate('+randInt(0,360)+'deg)';
+        document.body.appendChild(el);
+        var duration = randInt(1800,3200);
+        var anim = el.animate([
+          { transform:'translateY(0) rotate(0deg)', opacity:1 },
+          { transform:'translateY(100vh) rotate(720deg)', opacity:0.9 }
+        ], { duration:duration, easing:'ease-in', delay:randInt(0,500) });
+        anim.onfinish = function(){ el.remove(); };
+      })();
+    }
+  }
+
+  /* ---------------- Answer handling ---------------- */
+  function submitAnswer(){
+    if(locked) return;
+    var val = answerInput.value.trim();
+    if(val === '') {
+      answerInput.classList.add('shake');
+      setTimeout(function(){ answerInput.classList.remove('shake'); },400);
+      return;
+    }
+    var num = parseInt(val,10);
+    locked = true;
+    answerInput.disabled = true;
+    checkBtn.disabled = true;
+
+    if(num === current.answer){
+      playCorrect();
+      showEncourage(GOOD_MSGS[randInt(0,GOOD_MSGS.length-1)], true);
+      flyBrickToCastle(function(){
+        score = Math.min(TOTAL, score+1);
+        setScoreText();
+        bumpScoreBadge();
+        updateCastle();
+        finishTurn();
+      });
+    } else {
+      playWrong();
+      showEncourage(OOPS_MSGS[randInt(0,OOPS_MSGS.length-1)], false);
+      answerInput.classList.add('shake');
+      dropBrickFromCastle(function(){
+        score = Math.max(0, score-1);
+        setScoreText();
+        bumpScoreBadge();
+        updateCastle();
+        finishTurn();
+      });
+    }
+  }
+
+  function finishTurn(){
+    locked = false;
+    if(score >= TOTAL){
+      celebrateWin();
+    } else {
+      generateQuestion();
+    }
+  }
+
+  function celebrateWin(){
+    playWin();
+    burstConfetti();
+    setTimeout(function(){ winOverlay.classList.add('show'); }, 400);
+    answerInput.disabled = true;
+    checkBtn.disabled = true;
+  }
+
+  /* ---------------- Keypad ---------------- */
+  keypad.addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    var k = btn.getAttribute('data-k');
+    if(answerInput.disabled) return;
+    if(k === 'clear'){
+      answerInput.value = '';
+    } else if(k === 'back'){
+      answerInput.value = answerInput.value.slice(0,-1);
+    } else {
+      if(answerInput.value.length < 3) answerInput.value += k;
+    }
+    answerInput.focus();
+  });
+
+  checkBtn.addEventListener('click', submitAnswer);
+  answerInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') submitAnswer();
+  });
+  answerInput.addEventListener('input', function(){
+    answerInput.value = answerInput.value.replace(/[^0-9]/g,'');
+  });
+
+  restartBtn.addEventListener('click', function(){
+    score = 0;
+    setScoreText();
+    updateCastle();
+    winOverlay.classList.remove('show');
+    generateQuestion();
+  });
+
+  /* ---------------- Decorative clouds ---------------- */
+  function addClouds(){
+    var positions = [
+      {top:'8%', left:'10%', w:70, h:26},
+      {top:'16%', left:'65%', w:90, h:30},
+      {top:'6%', left:'80%', w:50, h:20}
+    ];
+    positions.forEach(function(p){
+      var c = document.createElement('div');
+      c.className = 'cloud';
+      c.style.top = p.top; c.style.left = p.left;
+      c.style.width = p.w+'px'; c.style.height = p.h+'px';
+      stageWrap.insertBefore(c, stageWrap.firstChild);
+    });
+  }
+
+  /* ---------------- Init ---------------- */
+  addClouds();
+  setScoreText();
+  updateCastle();
+  generateQuestion();
+
+  window.addEventListener('resize', function(){ updateCastle(); });
+})();
+</script>
+</body>
+</html>
