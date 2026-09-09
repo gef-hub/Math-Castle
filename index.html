@@ -23,6 +23,20 @@
     --gate:#241C14;
     --brick:#C1440E;
     --brick-dark:#8C3313;
+    --eiffel-iron:#6B4A34;
+    --eiffel-iron-dark:#4A2F1F;
+    --wizard-stone:#5B5568;
+    --wizard-stone-dark:#332C42;
+    --wizard-roof:#3B2F5E;
+    --wizard-roof-light:#4A3B73;
+    --wizard-window:#F5D77A;
+    --wizard-gate:#1C1620;
+    --pyramid-sand:#D9B36C;
+    --pyramid-sand-dark:#A9793B;
+    --pyramid-sand-shadow:#B98F4E;
+    --pyramid-entrance:#5C4322;
+    --sphinx:#C9A468;
+    --sphinx-dark:#9C7A42;
     --gold:#F2B705;
     --ink:#3B2A20;
     --panel:#FFF8E9;
@@ -49,18 +63,12 @@
   .topbar{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-end;
     padding:14px 20px;
     background:#3B6FA0;
     color:#fff;
     box-shadow:0 3px 0 rgba(0,0,0,0.15);
     z-index:5;
-  }
-  .topbar h1{
-    margin:0;
-    font-size:clamp(18px,3vw,26px);
-    font-weight:700;
-    letter-spacing:.3px;
   }
   .score-badge{
     position:relative;
@@ -333,7 +341,6 @@
 <body>
 
   <div class="topbar">
-    <h1>🏰 Build the Castle!</h1>
     <div class="topbar-right">
       <div class="score-badge" id="scoreBadge">0 / 50</div>
       <button class="mute-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
@@ -423,6 +430,115 @@
         </g>
       </g>
 
+      <!-- ===== EIFFEL TOWER (alternate building, revealed the same way) ===== -->
+      <g id="eiffelFill" clip-path="url(#buildClip)" style="display:none">
+        <!-- footings -->
+        <rect x="88" y="250" width="24" height="12" fill="var(--ishigaki-dark)"/>
+        <rect x="288" y="250" width="24" height="12" fill="var(--ishigaki-dark)"/>
+
+        <!-- legs -->
+        <polygon points="150,170 250,170 300,260 100,260" fill="var(--eiffel-iron)" stroke="var(--eiffel-iron-dark)" stroke-width="1.5"/>
+        <line x1="145" y1="180" x2="294" y2="250" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+        <line x1="255" y1="180" x2="106" y2="250" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+        <line x1="123" y1="220" x2="277" y2="220" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+
+        <!-- platform 1 -->
+        <rect x="142" y="163" width="116" height="9" fill="var(--eiffel-iron-dark)" stroke="#2A1D12" stroke-width="1"/>
+
+        <!-- mid section -->
+        <polygon points="172,105 228,105 250,165 150,165" fill="var(--eiffel-iron)" stroke="var(--eiffel-iron-dark)" stroke-width="1.5"/>
+        <line x1="175" y1="108" x2="249" y2="162" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+        <line x1="227" y1="108" x2="151" y2="162" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+        <line x1="162" y1="135" x2="238" y2="135" stroke="var(--eiffel-iron-dark)" stroke-width="1" opacity="0.4"/>
+
+        <!-- platform 2 -->
+        <rect x="165" y="100" width="70" height="7" fill="var(--eiffel-iron-dark)" stroke="#2A1D12" stroke-width="1"/>
+
+        <!-- upper section -->
+        <polygon points="188,58 212,58 228,100 172,100" fill="var(--eiffel-iron)" stroke="var(--eiffel-iron-dark)" stroke-width="1.5"/>
+
+        <!-- platform 3 -->
+        <rect x="182" y="55" width="36" height="6" fill="var(--eiffel-iron-dark)" stroke="#2A1D12" stroke-width="1"/>
+
+        <!-- spire -->
+        <polygon points="188,58 200,20 212,58" fill="var(--eiffel-iron)" stroke="var(--eiffel-iron-dark)" stroke-width="1.5"/>
+
+        <!-- antenna -->
+        <line x1="200" y1="20" x2="200" y2="4" stroke="var(--eiffel-iron-dark)" stroke-width="2"/>
+        <circle cx="200" cy="4" r="2.4" fill="var(--eiffel-iron-dark)"/>
+
+        <!-- tricolour flag (only shown once the tower is complete) -->
+        <g id="eiffelFlagGroup" opacity="0">
+          <line x1="216" y1="58" x2="216" y2="34" stroke="#8A6D3B" stroke-width="1.5"/>
+          <rect x="216" y="34" width="5" height="9" fill="#0055A4"/>
+          <rect x="221" y="34" width="5" height="9" fill="#FFFFFF"/>
+          <rect x="226" y="34" width="5" height="9" fill="#EF4135"/>
+        </g>
+      </g>
+
+      <!-- ===== WIZARD'S CASTLE (alternate building) ===== -->
+      <g id="wizardFill" clip-path="url(#buildClip)" style="display:none">
+        <!-- left tower -->
+        <rect x="108" y="95" width="48" height="165" fill="var(--wizard-stone)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <polygon points="104,95 132,58 160,95" fill="var(--wizard-roof)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <circle cx="132" cy="58" r="2.4" fill="var(--gold)"/>
+        <rect x="121" y="145" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+
+        <!-- right tower -->
+        <rect x="272" y="140" width="42" height="120" fill="var(--wizard-stone)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <polygon points="268,140 293,108 318,140" fill="var(--wizard-roof)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <circle cx="293" cy="108" r="2.4" fill="var(--gold)"/>
+        <rect x="282" y="160" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+
+        <!-- main tower (tallest) -->
+        <rect x="203" y="50" width="44" height="210" fill="var(--wizard-stone)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <polygon points="197,50 225,15 253,50" fill="var(--wizard-roof-light)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <rect x="216" y="90" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+        <rect x="216" y="130" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+
+        <!-- connecting curtain wall / base, drawn on top to unify the towers -->
+        <rect x="90" y="195" width="235" height="65" fill="var(--wizard-stone)" stroke="var(--wizard-stone-dark)" stroke-width="1.5"/>
+        <path d="M186,260 L186,238 A14,12 0 0 1 214,238 L214,260 Z" fill="var(--wizard-gate)"/>
+        <rect x="125" y="212" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+        <rect x="265" y="212" width="10" height="14" rx="2" fill="var(--wizard-window)"/>
+
+        <!-- finial ball on the main spire -->
+        <circle cx="225" cy="15" r="3" fill="var(--gold)"/>
+
+        <!-- magic sparkle (only shown once the castle is complete) -->
+        <g id="wizardFlagGroup" opacity="0">
+          <path d="M225,2 l2,6 6,2 -6,2 -2,6 -2,-6 -6,-2 6,-2 z" fill="var(--gold)"/>
+          <path d="M250,25 l1.4,4 4,1.4 -4,1.4 -1.4,4 -1.4,-4 -4,-1.4 4,-1.4 z" fill="var(--gold)"/>
+          <path d="M198,30 l1.2,3.4 3.4,1.2 -3.4,1.2 -1.2,3.4 -1.2,-3.4 -3.4,-1.2 3.4,-1.2 z" fill="var(--gold)"/>
+        </g>
+      </g>
+
+      <!-- ===== GREAT PYRAMID (alternate building) ===== -->
+      <g id="pyramidFill" clip-path="url(#buildClip)" style="display:none">
+        <!-- sphinx -->
+        <ellipse cx="65" cy="250" rx="34" ry="11" fill="var(--sphinx)" stroke="var(--sphinx-dark)" stroke-width="1.5"/>
+        <path d="M38,250 L38,224 Q38,216 48,216 L58,216 Q64,216 64,224 L64,244 Z" fill="var(--sphinx)" stroke="var(--sphinx-dark)" stroke-width="1.5"/>
+        <rect x="40" y="222" width="5" height="10" fill="var(--sphinx-dark)" opacity="0.6"/>
+
+        <!-- pyramid body -->
+        <polygon points="85,260 200,95 315,260" fill="var(--pyramid-sand)" stroke="var(--pyramid-sand-dark)" stroke-width="2"/>
+        <polygon points="200,95 315,260 255,260" fill="var(--pyramid-sand-shadow)" opacity="0.55"/>
+
+        <!-- stone courses -->
+        <line x1="115" y1="222" x2="285" y2="222" stroke="var(--pyramid-sand-dark)" stroke-width="1" opacity="0.5"/>
+        <line x1="133" y1="190" x2="267" y2="190" stroke="var(--pyramid-sand-dark)" stroke-width="1" opacity="0.5"/>
+        <line x1="151" y1="158" x2="249" y2="158" stroke="var(--pyramid-sand-dark)" stroke-width="1" opacity="0.5"/>
+        <line x1="169" y1="126" x2="231" y2="126" stroke="var(--pyramid-sand-dark)" stroke-width="1" opacity="0.5"/>
+
+        <!-- entrance -->
+        <path d="M186,260 L186,234 L200,220 L214,234 L214,260 Z" fill="var(--pyramid-entrance)"/>
+
+        <!-- golden capstone (only shown once the pyramid is complete) -->
+        <g id="pyramidFlagGroup" opacity="0">
+          <polygon points="200,85 191,105 209,105" fill="var(--gold)" stroke="#A9793B" stroke-width="1"/>
+        </g>
+      </g>
+
       <clipPath id="buildClip">
         <rect id="buildClipRect" x="0" y="260" width="400" height="0"/>
       </clipPath>
@@ -457,9 +573,9 @@
 
   <div class="overlay" id="winOverlay">
     <div class="win-card">
-      <h2>🏰 Castle Complete!</h2>
-      <p>You solved 50 sums and built the whole castle. Well done, builder!</p>
-      <button class="restart-btn" id="restartBtn">Build a New Castle</button>
+      <h2 id="winHeading">🏰 Castle Complete!</h2>
+      <p id="winMessage">You solved 50 sums and built the whole castle. Well done, builder!</p>
+      <button class="restart-btn" id="restartBtn">Build a New Landmark</button>
     </div>
   </div>
 
@@ -482,15 +598,60 @@
   var keypad = document.getElementById('keypad');
   var stageWrap = document.getElementById('stageWrap');
   var buildClipRect = document.getElementById('buildClipRect');
-  var flagGroup = document.getElementById('flagGroup');
   var winOverlay = document.getElementById('winOverlay');
   var restartBtn = document.getElementById('restartBtn');
   var muteBtn = document.getElementById('muteBtn');
   var encourage = document.getElementById('encourage');
+  var winHeading = document.getElementById('winHeading');
+  var winMessage = document.getElementById('winMessage');
 
-  var CASTLE_TOP = 8;     // y of finial tip
+  var BUILDINGS = [
+    {
+      key:'castle', name:'Feudal Castle', icon:'🏯', top:8,
+      groupId:'castleFill', flagId:'flagGroup',
+      brick:'#C1440E', brickDark:'#8C3313',
+      completeLine:'You solved 50 sums and built the whole castle. Well done, builder!'
+    },
+    {
+      key:'eiffel', name:'Eiffel Tower', icon:'🗼', top:0,
+      groupId:'eiffelFill', flagId:'eiffelFlagGroup',
+      brick:'#6B4A34', brickDark:'#4A2F1F',
+      completeLine:'You solved 50 sums and raised the Eiffel Tower into the sky. Magnifique!'
+    },
+    {
+      key:'wizard', name:"Wizard's Castle", icon:'🧙', top:2,
+      groupId:'wizardFill', flagId:'wizardFlagGroup',
+      brick:'#6A4FA0', brickDark:'#46316B',
+      completeLine:'You solved 50 sums and the towers are finally finished. The magic is complete!'
+    },
+    {
+      key:'pyramid', name:'Great Pyramid', icon:'🔺', top:85,
+      groupId:'pyramidFill', flagId:'pyramidFlagGroup',
+      brick:'#C9A227', brickDark:'#8C6B12',
+      completeLine:'You solved 50 sums and the golden capstone is set in place. A wonder complete!'
+    }
+  ];
+  var currentBuilding = BUILDINGS[0];
+
   var CASTLE_BASE = 260;  // y of ground
+  var CASTLE_TOP = currentBuilding.top;
   var CASTLE_SPAN = CASTLE_BASE - CASTLE_TOP;
+
+  function chooseBuilding(){
+    currentBuilding = BUILDINGS[randInt(0, BUILDINGS.length-1)];
+    CASTLE_TOP = currentBuilding.top;
+    CASTLE_SPAN = CASTLE_BASE - CASTLE_TOP;
+    BUILDINGS.forEach(function(b){
+      var g = document.getElementById(b.groupId);
+      if(g) g.style.display = (b.key === currentBuilding.key) ? '' : 'none';
+    });
+    document.documentElement.style.setProperty('--brick', currentBuilding.brick);
+    document.documentElement.style.setProperty('--brick-dark', currentBuilding.brickDark);
+  }
+
+  function currentFlagEl(){
+    return document.getElementById(currentBuilding.flagId);
+  }
 
   /* ---------------- Sound (WebAudio, no external files) ---------------- */
   var audioCtx = null;
@@ -552,7 +713,7 @@
     var y = CASTLE_BASE - h;
     buildClipRect.setAttribute('y', y);
     buildClipRect.setAttribute('height', h + 5);
-    flagGroup.setAttribute('opacity', score >= TOTAL ? 1 : 0);
+    currentFlagEl().setAttribute('opacity', score >= TOTAL ? 1 : 0);
   }
 
   function bumpScoreBadge(){
@@ -720,6 +881,8 @@
   function celebrateWin(){
     playWin();
     burstConfetti();
+    winHeading.textContent = currentBuilding.icon + ' ' + currentBuilding.name + ' Complete!';
+    winMessage.textContent = currentBuilding.completeLine;
     setTimeout(function(){ winOverlay.classList.add('show'); }, 400);
     answerInput.disabled = true;
     checkBtn.disabled = true;
@@ -752,6 +915,7 @@
   restartBtn.addEventListener('click', function(){
     score = 0;
     setScoreText();
+    chooseBuilding();
     updateCastle();
     winOverlay.classList.remove('show');
     generateQuestion();
@@ -775,6 +939,7 @@
 
   /* ---------------- Init ---------------- */
   addClouds();
+  chooseBuilding();
   setScoreText();
   updateCastle();
   generateQuestion();
