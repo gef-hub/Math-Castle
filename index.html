@@ -12,10 +12,16 @@
     --grass-dark:#4F8735;
     --stone:#EBDFC7;
     --stone-shadow:#C7B996;
-    --roof-a:#7B4B94;
-    --roof-b:#5C6BC0;
-    --gate:#4A3324;
-    --brick:#B5451B;
+    --roof-a:#3A5A4C;
+    --roof-b:#2E4A3E;
+    --roof-ridge:#D4AF37;
+    --wall-light:#F3EEDD;
+    --wall-dark:#292933;
+    --ishigaki:#767F87;
+    --ishigaki-dark:#4C545C;
+    --moat:#4A8FB0;
+    --gate:#241C14;
+    --brick:#C1440E;
     --brick-dark:#8C3313;
     --gold:#F2B705;
     --ink:#3B2A20;
@@ -83,10 +89,19 @@
   .mute-btn:hover{ background:rgba(255,255,255,0.3); }
   .topbar-right{ display:flex; align-items:center; }
 
+  /* ---------- Main row (castle left, panel right) ---------- */
+  .main-row{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:row;
+  }
+
   /* ---------- Stage ---------- */
   .stage-wrap{
     position:relative;
     flex:1 1 auto;
+    min-width:0;
     min-height:0;
     background:linear-gradient(var(--sky-top),var(--sky-bottom) 75%);
     overflow:hidden;
@@ -143,15 +158,17 @@
 
   /* ---------- Question panel ---------- */
   .panel{
-    flex:0 0 auto;
+    flex:0 0 clamp(260px,28vw,340px);
     background:var(--panel);
-    border-top:6px solid var(--panel-edge);
-    padding:14px 18px 18px;
+    border-left:6px solid var(--panel-edge);
+    padding:24px 18px;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:10px;
+    justify-content:center;
+    gap:14px;
     z-index:5;
+    overflow-y:auto;
   }
   .equation{
     font-size:clamp(30px,6vw,46px);
@@ -291,6 +308,17 @@
     pointer-events:none;
   }
 
+  @media (max-width:700px){
+    .main-row{ flex-direction:column; }
+    .panel{
+      flex:0 0 auto;
+      width:100%;
+      border-left:none;
+      border-top:6px solid var(--panel-edge);
+      padding:12px 18px 16px;
+    }
+  }
+
   @media (max-width:480px){
     .keypad{ grid-template-columns:repeat(3,48px); }
     .keypad button{ height:40px; font-size:19px; }
@@ -312,13 +340,14 @@
     </div>
   </div>
 
+  <div class="main-row">
   <div class="stage-wrap" id="stageWrap">
     <div class="encourage" id="encourage"></div>
     <svg id="stage" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
       <defs>
-        <linearGradient id="stoneGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#F3E9D2"/>
-          <stop offset="100%" stop-color="#D8C79E"/>
+        <linearGradient id="ishigakiGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#838C94"/>
+          <stop offset="100%" stop-color="#4C545C"/>
         </linearGradient>
       </defs>
 
@@ -326,35 +355,71 @@
       <rect x="0" y="255" width="400" height="45" fill="var(--grass)"/>
       <path d="M0,255 Q50,248 100,255 T200,255 T300,255 T400,255 L400,260 L0,260 Z" fill="var(--grass-dark)" opacity="0.5"/>
 
-      <!-- ===== CASTLE (revealed by clip) ===== -->
+      <!-- moat (static landscape feature, present from the start) -->
+      <path d="M0,262 Q60,256 130,262 T270,262 T400,262 L400,270 Q270,264 130,270 T0,270 Z" fill="var(--moat)" opacity="0.7"/>
+      <rect x="182" y="256" width="36" height="14" fill="#8A5A34"/>
+      <line x1="182" y1="256" x2="218" y2="256" stroke="#6B421F" stroke-width="2"/>
+
+      <!-- ===== CASTLE (revealed by clip as questions are answered) ===== -->
       <g id="castleFill" clip-path="url(#buildClip)">
-        <!-- connecting walls -->
-        <rect x="108" y="185" width="62" height="75" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
-        <rect x="230" y="185" width="62" height="75" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
 
-        <!-- left tower -->
-        <rect x="55" y="115" width="55" height="145" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
-        <polygon points="52,115 82.5,72 113,115" fill="var(--roof-b)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
-        <rect x="75" y="150" width="16" height="22" rx="2" fill="var(--gate)"/>
+        <!-- stone foundation (ishigaki) -->
+        <polygon points="70,260 330,260 292,220 108,220" fill="url(#ishigakiGrad)" stroke="var(--ishigaki-dark)" stroke-width="2"/>
+        <line x1="120" y1="248" x2="160" y2="248" stroke="var(--ishigaki-dark)" stroke-width="1.5" opacity="0.6"/>
+        <line x1="175" y1="240" x2="225" y2="240" stroke="var(--ishigaki-dark)" stroke-width="1.5" opacity="0.6"/>
+        <line x1="240" y1="248" x2="280" y2="248" stroke="var(--ishigaki-dark)" stroke-width="1.5" opacity="0.6"/>
+        <line x1="140" y1="230" x2="170" y2="230" stroke="var(--ishigaki-dark)" stroke-width="1.5" opacity="0.6"/>
+        <line x1="230" y1="230" x2="260" y2="230" stroke="var(--ishigaki-dark)" stroke-width="1.5" opacity="0.6"/>
+        <!-- gate arch into the foundation -->
+        <path d="M186,260 L186,236 A14,12 0 0 1 214,236 L214,260 Z" fill="var(--gate)"/>
 
-        <!-- right tower -->
-        <rect x="290" y="115" width="55" height="145" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
-        <polygon points="287,115 317.5,72 348,115" fill="var(--roof-b)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
-        <rect x="309" y="150" width="16" height="22" rx="2" fill="var(--gate)"/>
+        <!-- tier 4 wall (bottom, largest) -->
+        <rect x="108" y="173" width="184" height="47" fill="var(--wall-dark)" stroke="#141018" stroke-width="1.5"/>
+        <rect x="108" y="173" width="184" height="4" fill="var(--roof-ridge)" opacity="0.85"/>
+        <rect x="150" y="190" width="12" height="13" fill="var(--gate)"/>
+        <rect x="238" y="190" width="12" height="13" fill="var(--gate)"/>
 
-        <!-- center keep -->
-        <rect x="165" y="70" width="70" height="190" fill="url(#stoneGrad)" stroke="var(--stone-shadow)" stroke-width="2"/>
-        <polygon points="161,70 200,20 239,70" fill="var(--roof-a)" stroke="var(--stone-shadow)" stroke-width="1.5"/>
-        <!-- gate arch -->
-        <path d="M182,260 L182,225 A18,18 0 0 1 218,225 L218,260 Z" fill="var(--gate)"/>
-        <!-- windows -->
-        <rect x="188" y="150" width="10" height="16" rx="4" fill="var(--gate)"/>
-        <rect x="202" y="150" width="10" height="16" rx="4" fill="var(--gate)"/>
+        <!-- roof 4 -->
+        <polygon points="74,169 80,159 200,142 320,159 326,169 292,173 108,173" fill="var(--roof-a)" stroke="#1E2E27" stroke-width="1.5"/>
+        <polyline points="80,159 200,142 320,159" fill="none" stroke="var(--roof-ridge)" stroke-width="1.5" opacity="0.8"/>
 
-        <!-- flag (only fully visible when castle is complete) -->
+        <!-- tier 3 wall -->
+        <rect x="135" y="116" width="130" height="43" fill="var(--wall-dark)" stroke="#141018" stroke-width="1.5"/>
+        <rect x="135" y="116" width="130" height="4" fill="var(--roof-ridge)" opacity="0.85"/>
+        <rect x="170" y="132" width="10" height="11" fill="var(--gate)"/>
+        <rect x="220" y="132" width="10" height="11" fill="var(--gate)"/>
+
+        <!-- roof 3 -->
+        <polygon points="106,112 111,103 200,88 289,103 294,112 265,116 135,116" fill="var(--roof-b)" stroke="#1E2E27" stroke-width="1.5"/>
+        <polyline points="111,103 200,88 289,103" fill="none" stroke="var(--roof-ridge)" stroke-width="1.5" opacity="0.8"/>
+
+        <!-- tier 2 wall -->
+        <rect x="157" y="70" width="86" height="38" fill="var(--wall-light)" stroke="#B9AD8E" stroke-width="1.5"/>
+        <rect x="178" y="84" width="9" height="10" fill="var(--gate)"/>
+        <rect x="213" y="84" width="9" height="10" fill="var(--gate)"/>
+
+        <!-- roof 2 -->
+        <polygon points="136,66 141,58 200,45 259,58 264,66 243,70 157,70" fill="var(--roof-a)" stroke="#1E2E27" stroke-width="1.5"/>
+        <polyline points="141,58 200,45 259,58" fill="none" stroke="var(--roof-ridge)" stroke-width="1.5" opacity="0.8"/>
+
+        <!-- tier 1 wall (top, smallest) -->
+        <rect x="178" y="31" width="44" height="31" fill="var(--wall-light)" stroke="#B9AD8E" stroke-width="1.5"/>
+        <rect x="192" y="42" width="8" height="9" fill="var(--gate)"/>
+
+        <!-- roof 1 + finial -->
+        <polygon points="160,27 164,20 200,10 236,20 240,27 222,31 178,31" fill="var(--roof-b)" stroke="#1E2E27" stroke-width="1.5"/>
+        <polyline points="164,20 200,10 236,20" fill="none" stroke="var(--roof-ridge)" stroke-width="1.5" opacity="0.8"/>
+        <line x1="200" y1="10" x2="200" y2="2" stroke="var(--roof-ridge)" stroke-width="2"/>
+        <circle cx="200" cy="2" r="2.6" fill="var(--roof-ridge)"/>
+        <!-- shachihoko roof guardians -->
+        <path d="M164,20 q-6,-6 -1,-11 q3,3 1,7 q3,-1 4,2 z" fill="var(--roof-ridge)"/>
+        <path d="M236,20 q6,-6 1,-11 q-3,3 -1,7 q-3,-1 -4,2 z" fill="var(--roof-ridge)"/>
+
+        <!-- nobori victory banner (only shown once the castle is complete) -->
         <g id="flagGroup" opacity="0">
-          <line x1="200" y1="20" x2="200" y2="0" stroke="#5a4632" stroke-width="2"/>
-          <polygon id="flagCloth" points="200,0 216,4 200,9" fill="var(--gold)"/>
+          <line x1="316" y1="260" x2="316" y2="176" stroke="#8A6D3B" stroke-width="3"/>
+          <path d="M316,176 L316,206 L340,209 L332,192 L340,176 Z" fill="var(--brick)"/>
+          <circle cx="325" cy="192" r="5.5" fill="#FBF6EA"/>
         </g>
       </g>
 
@@ -387,6 +452,7 @@
       <button class="clear" data-k="clear">C</button><button data-k="0">0</button><button class="back" data-k="back">⌫</button>
     </div>
     <div class="hint">Type your answer or tap the number pad, then press Check.</div>
+  </div>
   </div>
 
   <div class="overlay" id="winOverlay">
@@ -422,7 +488,7 @@
   var muteBtn = document.getElementById('muteBtn');
   var encourage = document.getElementById('encourage');
 
-  var CASTLE_TOP = 20;    // y of flag tip
+  var CASTLE_TOP = 8;     // y of finial tip
   var CASTLE_BASE = 260;  // y of ground
   var CASTLE_SPAN = CASTLE_BASE - CASTLE_TOP;
 
@@ -455,17 +521,18 @@
 
   /* ---------------- Question generation ---------------- */
   function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  var MIN_OPERAND = 4; // addends and the subtrahend must be greater than 3
 
   function generateQuestion(){
     var op = Math.random() < 0.5 ? '+' : '-';
     var a,b,answer;
     if(op === '+'){
-      a = randInt(0,20);
-      b = randInt(0,20-a);
+      a = randInt(MIN_OPERAND, 20-MIN_OPERAND);
+      b = randInt(MIN_OPERAND, 20-a);
       answer = a+b;
     } else {
-      a = randInt(0,20);
-      b = randInt(0,a);
+      a = randInt(MIN_OPERAND*2, 20);
+      b = randInt(MIN_OPERAND, a);
       answer = a-b;
     }
     current = { a:a, b:b, op:op, answer:answer };
